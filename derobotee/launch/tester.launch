@@ -1,34 +1,28 @@
 <launch>
   <group ns="derobotee">
-    <rosparam param="base_width">0.267</rosparam>  
+    <rosparam param="base_width">0.526</rosparam>  
     <rosparam param="rate">30</rosparam>
     <rosparam param="ticks_meter">635677.6602</rosparam>
     <rosparam param="ticks_meter">636619.7723</rosparam>
     <rosparam param="timeout_ticks">4</rosparam>
-    <rosparam param="wheel_radius">0.0625</rosparam>
-    <rosparam param="wheel_gear_ratio">25</rosparam>
-    <rosparam param="total_motor">4</rosparam>
+    <rosparam param="wheel_radius">0.075</rosparam>
+    <rosparam param="wheel_gear_ratio">20</rosparam>
+    <rosparam param="total_motor">2</rosparam>
     <rosparam param="min_position">-1</rosparam>
     <rosparam param="max_position">220000</rosparam>
   </group>
   <group ns="motor">
     <param name="rate" type="double" value="30" />
     <param name="ifname" type="str" value="enp0s25"/>
-    <rosparam param="z_motor">1</rosparam>
-    <rosparam param="grinder">2</rosparam>
-    <rosparam param="left_wheel">3</rosparam>
-    <rosparam param="right_wheel">4</rosparam>
+    <rosparam param="left_wheel">1</rosparam>
+    <rosparam param="right_wheel">2</rosparam>
     <group ns="direction">
       <rosparam param="1">1</rosparam>
-      <rosparam param="2">1</rosparam>
-      <rosparam param="3">1</rosparam>
-      <rosparam param="4">-1</rosparam>
+      <rosparam param="2">-1</rosparam>
     </group> 
     <group ns="mode">
-      <rosparam param="1">position</rosparam>
+      <rosparam param="1">speed</rosparam>
       <rosparam param="2">speed</rosparam>
-      <rosparam param="3">speed</rosparam>
-      <rosparam param="4">speed</rosparam>
     </group>
   </group>
     <param name="robot_description" command="$(find xacro)/xacro.py $(find derobotee)/urdf/diff_wheeled_robot.xacro" />
