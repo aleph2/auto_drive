@@ -1,0 +1,7 @@
+<launch>
+    <group ns="derobotee">
+    <node pkg="derobotee" name="dr_soem" type="dr_soem" output="screen">
+       <remap from="state" to="/motor/state"/>
+    </node>
+    </group>
+</launch>

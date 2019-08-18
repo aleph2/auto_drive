@@ -1,0 +1,22 @@
+<launch>
+  <include file="$(find derobotee)/launch/soem.launch" />
+  <group ns="derobotee">
+    <rosparam param="base_width">0.3</rosparam>  
+    <rosparam param="rate">30</rosparam>
+    <rosparam param="ticks_meter">509295.8179
+
+</rosparam>
+    <rosparam param="timeout_ticks">4</rosparam>
+    <rosparam param="wheel_radius">0.0625</rosparam>
+    <rosparam param="wheel_gear_ratio">25</rosparam>
+    <rosparam param="left_idx">1</rosparam>
+    <rosparam param="right_idx">2</rosparam>
+
+    <rosparam param="l_direction">-1</rosparam>
+    <rosparam param="r_direction">1</rosparam>
+
+    <node pkg="derobotee" type="twist_to_motor" name="twist_to_motor" output="screen" launch-prefix="gdb -ex --args"/>
+    <!--node pkg="derobotee" type="diff_tf" name="diff_tf" output="screen"/-->
+
+  </group>
+</launch>

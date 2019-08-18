@@ -1,0 +1,9 @@
+<launch>
+
+    <!-- Set to your sensor's range -->
+    <arg name="sensor_range" default="1.0"/>
+
+    <node pkg="frontier_exploration" type="explore_client" name="explore_client" output="screen"/>
+
+
+</launch>

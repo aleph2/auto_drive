@@ -1,0 +1,6 @@
+<launch>
+    <group ns="derobotee">
+    <node pkg="derobotee" name="dr_soem" type="dr_soem" output="screen">
+    </node>
+    </group>
+</launch>

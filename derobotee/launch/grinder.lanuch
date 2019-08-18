@@ -1,0 +1,19 @@
+<launch>
+  <group ns="derobotee">
+    <rosparam param="base_width">0.50</rosparam>  
+    <rosparam param="rate">30</rosparam>
+    <rosparam param="ticks_meter">630316.6063</rosparam>
+    <rosparam param="timeout_ticks">4</rosparam>
+    <rosparam param="wheel_radius">0.0625</rosparam>
+    <rosparam param="wheel_gear_ratio">1</rosparam>
+    <rosparam param="left_idx">1</rosparam>
+    <rosparam param="right_idx">2</rosparam>
+
+    <rosparam param="l_direction">1</rosparam>
+    <rosparam param="r_direction">-1</rosparam>
+  </group>
+    <param name="robot_description" command="$(find xacro)/xacro.py $(find derobotee)/urdf/diff_wheeled_robot.xacro" />
+    <!-- Starting Joint state publisher node which will publish the joint values -->
+  <include file="$(find derobotee)/launch/includes/run.launch.xml"/>
+
+</launch>

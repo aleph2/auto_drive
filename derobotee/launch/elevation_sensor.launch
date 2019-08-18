@@ -1,0 +1,6 @@
+<launch>
+    <group ns="derobotee">
+    <node pkg="derobotee" name="elevation_sensor" type="elevation_sensor" output="screen">
+    </node>
+    </group>
+</launch>

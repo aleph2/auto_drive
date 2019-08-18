@@ -1,0 +1,3 @@
+#rostopic pub -1 /derobotee/cmd derobotee/MotorCmdList -- "[{'slave':1, 'value':$1}, {'slave':2, 'value':$2}]"
+rostopic pub -1 /derobotee/cmd derobotee/MotorCmdList -- "[{'slave':$1, 'value':$2}]"
+

@@ -1,0 +1,11 @@
+width:449mm
+lentgh:770mm
+wheel width:35mm
+wheel diameter:125mm
+wheel axis distance:300mm
+x coordinate of wheel axis : 272mm
+y coordinate of wheel axis : 0mm
+head width: 149.5mm
+cartio wheel head:100mm
+    total length 22.5+770mm
+radius for turn : 40cm

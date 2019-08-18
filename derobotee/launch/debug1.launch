@@ -1,0 +1,9 @@
+<launch>
+
+  <group ns="derobotee">
+    <node pkg="derobotee" name="dr_soem" type="dr_soem" output="screen" launch-prefix="gdb -ex --args">
+      <param name="rate" type="double" value="30" />
+      <param name="ifname" type="str" value="enp0s25"/>
+    </node>
+  </group>
+</launch>

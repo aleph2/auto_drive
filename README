@@ -1,0 +1,6 @@
+The robot for grinding
+link canbus driver static library
+ln -s /usr/local/lib/libcontrolcan.so libcontrolcan.so
+
+modify /opt/ros/kinetic/include/soem/ethercattype.h  
+from #include <osal.h> to #include "osal.h"

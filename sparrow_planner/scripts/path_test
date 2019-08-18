@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+import numpy as np
+import roslib
+import rospy
+import tf
+import actionlib
+from sparrow_planner.msg import sparrowAction
+from geometry_msgs.msg import Polygon
+from nav_msgs.msg import Path
+from geometry_msgs.msg import PoseStamped
+from sparrow_planner.srv import GetPathIdx
+from sparrow_planner.srv import GetPlan
+import utils
+
+def makePose(point):
+    print "construct pose from point", point
+    pose = PoseStamped()
+    pose.header.stamp = rospy.Time.now()
+    pose.header.frame_id = "map"
+    pose.pose.position.x = point[0]
+    pose.pose.position.y = point[1]
+    pose.pose.position.z = 0
+
+    quaternion = tf.transformations.quaternion_from_euler(0, 0, 0)
+    pose.pose.orientation.x = quaternion[0]
+    pose.pose.orientation.y = quaternion[1]
+    pose.pose.orientation.z = quaternion[2]
+    pose.pose.orientation.w = quaternion[3]
+    return pose
+def path_test_server():
+    rospy.init_node('path_test_server')
+    s = rospy.Service('path_test_service',GetPlan, publishPath)
+    rospy.spin()
+def publishPath(self):
+    points = np.array([[1.0,1.0],[3.0,3.0]])
+    poses = map(lambda p:makePose(p), points)
+    path = Path()
+    path.poses.extend(poses)
+    return path 
+
+if __name__ == '__main__':
+    path_test_server()
+

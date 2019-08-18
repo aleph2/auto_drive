@@ -1,0 +1,34 @@
+<launch>
+  <group ns="derobotee">
+    <rosparam param="base_width">0.4609375</rosparam>  
+    <rosparam param="rate">30</rosparam>
+    <rosparam param="ticks_meter">25464.79089</rosparam>
+    <rosparam param="timeout_ticks">4</rosparam>
+    <rosparam param="wheel_radius">0.0625</rosparam>
+    <rosparam param="wheel_gear_ratio">1</rosparam>
+    <rosparam param="total_motor">1</rosparam>
+    <rosparam param="min_position">-1000000</rosparam>
+    <rosparam param="max_position">800000</rosparam>
+  </group>
+  <group ns="motor">
+    <param name="rate" type="double" value="30" />
+    <param name="ifname" type="str" value="enp0s25"/>
+    <rosparam param="z_motor">4</rosparam>
+    <rosparam param="grinder">3</rosparam>
+    <rosparam param="left_wheel">2</rosparam>
+    <rosparam param="right_wheel">1</rosparam>
+    <group ns="direction">
+      <rosparam param="1">1</rosparam>
+      <rosparam param="2">1</rosparam>
+      <rosparam param="3">1</rosparam>
+      <rosparam param="4">-1</rosparam>
+    </group> 
+    <group ns="mode">
+      <rosparam param="1">speed</rosparam>
+      <rosparam param="2">speed</rosparam>
+      <rosparam param="3">speed</rosparam>
+      <rosparam param="4">speed</rosparam>
+    </group>
+  </group>
+  <include file="$(find derobotee)/launch/includes/soem.launch.xml"/>
+</launch>

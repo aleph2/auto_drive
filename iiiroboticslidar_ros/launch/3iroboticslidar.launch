@@ -1,0 +1,7 @@
+<launch>
+  <node name="iiiRobotics_lidar_node"          pkg="iiiroboticslidar"  type="iiiRobotics_lidar_node" output="screen">
+  <param name="serial_port"         type="string" value="/dev/USBLidar"/>  
+  <param name="angle_min"            type="double" value="60.0"/>
+  <param name="angle_max"            type="double" value="300.0"/>
+  </node>
+</launch>

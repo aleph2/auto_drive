@@ -1,0 +1,2 @@
+rostopic pub -1 /dr_motor_driver/cmd dr_motor_driver/MotorCmdList -- "[{'slave':1, 'value':$1}]"
+

@@ -1,0 +1,9 @@
+<launch>
+  <!-- turtlebot_teleop_key already has its own built in velocity smoother -->
+  <node pkg="derobotee" type="teleop_key" name="teleop_keyboard"  output="screen">
+
+<!--    <remap from="arlobot_teleop_keyboard/cmd_vel" to="diffbot_controller/cmd_vel"/> -->
+    <!--remap from="teleop_keyboard/cmd_vel" to="/derobotee/cmd_vel_mux/input/teleop"/--> 
+    <remap from="teleop_keyboard/cmd_vel" to="/key_vel"/> 
+  </node>
+</launch>
