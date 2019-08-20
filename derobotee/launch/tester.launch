@@ -33,5 +33,5 @@
     </node>
     <param name="use_gui" value="false"/>
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-  <node pkg="tf" type="static_transform_publisher" name="lidar_broadcaster" args="0.72 0 0 0 0 0 1 base_link laser 50" />
+  <node pkg="tf" type="static_transform_publisher" name="lidar_broadcaster" args="0.52638 0 0 0 0 0 1 base_link laser 50" />
 </launch>

@@ -6,7 +6,7 @@
     <rosparam param="timeout_ticks">4</rosparam>
     <rosparam param="wheel_radius">0.0625</rosparam>
     <rosparam param="wheel_gear_ratio">1</rosparam>
-    <rosparam param="total_motor">1</rosparam>
+    <rosparam param="total_motor">2</rosparam>
     <rosparam param="min_position">-1000000</rosparam>
     <rosparam param="max_position">800000</rosparam>
   </group>
