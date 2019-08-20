@@ -90,7 +90,7 @@ void DrSoem::get_parameters()
              modes[i]=mode; 
            }
         }
-        n.param<int>("/motor/grinder", grinder_idx, 2);
+        n.param<int>("/motor/grinder", grinder_idx, 4);
 
 }
 
