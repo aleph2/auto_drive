@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+import roslib
+import rospy
+import minimalmodbus
+import struct
+from std_msgs.msg import Int32
+class PowerState():
+    def __init__(self):
+        self.power_state_pub = rospy.Publisher('/derobotee/power_state', Int32, queue_size=10, latch=True)
+        self.instrumentA = minimalmodbus.Instrument('/dev/USBBattry', 1, minimalmodbus.MODE_RTU)
+        self.instrumentA.serial.baudrate = 9600
+        self.instrumentA.serial.timeout = 1
+
+    def spin(self):
+        r = rospy.Rate(10)
+        while not rospy.is_shutdown():
+            self.update()
+            r.sleep()
+    def update(self):
+        b = self.instrumentA._perform_command(3, '\x00\x14\x00\x02')
+        #self.power_state_pub.publish(struct.unpack('>H', b[1:3]))
+        power_volum = struct.unpack('>H', b[1:3])[0]
+        self.power_state_pub.publish(power_volum)
+if __name__ == '__main__':
+    rospy.init_node('power_state')
+    try:
+        ne = PowerState()
+        ne.spin()
+    except rospy.ROSInterruptException: pass

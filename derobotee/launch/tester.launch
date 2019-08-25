@@ -13,11 +13,11 @@
   <group ns="motor">
     <param name="rate" type="double" value="30" />
     <param name="ifname" type="str" value="enp0s25"/>
-    <rosparam param="left_wheel">1</rosparam>
-    <rosparam param="right_wheel">2</rosparam>
+    <rosparam param="left_wheel">2</rosparam>
+    <rosparam param="right_wheel">1</rosparam>
     <group ns="direction">
-      <rosparam param="1">1</rosparam>
-      <rosparam param="2">-1</rosparam>
+      <rosparam param="1">-1</rosparam>
+      <rosparam param="2">1</rosparam>
     </group> 
     <group ns="mode">
       <rosparam param="1">speed</rosparam>

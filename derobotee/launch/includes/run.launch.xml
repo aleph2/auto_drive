@@ -9,6 +9,7 @@
   <group ns="derobotee">
     <node pkg="derobotee" type="twist_to_motor" name="twist_to_motor" output="screen"/>
     <node pkg="derobotee" type="diff_tf" name="diff_tf" output="screen"/>
+    <node pkg="derobotee" type="power_state" name="power_state" output="screen"/>
 
   </group>
 </launch>
