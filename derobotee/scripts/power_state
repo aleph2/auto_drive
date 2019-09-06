@@ -12,7 +12,7 @@ class PowerState():
         self.instrumentA.serial.timeout = 1
 
     def spin(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(0.1)
         while not rospy.is_shutdown():
             self.update()
             r.sleep()
