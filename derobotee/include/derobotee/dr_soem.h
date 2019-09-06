@@ -47,6 +47,7 @@ class DrSoem
 public:
         DrSoem();
         void spin();
+        void ecatcheck(const ros::TimerEvent&);
 
 private:
         char IOmap[4096];
@@ -76,7 +77,7 @@ private:
         void transferData();
         void configSpeedPDO(int idx);
         void configPositionPDO(int idx);
-        void ecatcheck(const ros::TimerEvent&);
+        void releaseMotor(unsigned int s);
 //variable for ec data process
         int i, j, oloop, iloop, chk;
         void configSpeedMode(unsigned int slave);
@@ -91,6 +92,7 @@ private:
         int max_position;
         int min_position;
         int grinder_idx;
+        bool motors_initialized_;
 };
 
 }

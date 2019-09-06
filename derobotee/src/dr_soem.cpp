@@ -4,7 +4,7 @@ subscribe msg as motorNumber:cmdType:value
 publish msg as motorNumber:position:status:timestamp
 */
 using namespace derobotee;
-DrSoem::DrSoem():directions(10, 0), modes(10,""), min_position(-1),max_position(200000)
+DrSoem::DrSoem():directions(10, 0), modes(10,""), min_position(-1),max_position(200000),motors_initialized_(false)
 {
 	init_variables();
 	get_parameters();
@@ -30,7 +30,6 @@ DrSoem::DrSoem():directions(10, 0), modes(10,""), min_position(-1),max_position(
 	
 	motorsState = n.advertise<derobotee::MotorStatusList>("state", 50);
 	ROS_INFO("Publish MotorStatusList");
-//        ros::Timer timer = n.createTimer(ros::Duration(0.1), &DrSoem::ecatcheck, this);
 
 }
 
@@ -157,14 +156,14 @@ void DrSoem::initEthercat()
 
        if ( ec_config_init(FALSE) > 0 )
       {
-         printf("%d slaves found and configured.\n",ec_slavecount);
+         ROS_INFO("%d slaves found and configured.\n",ec_slavecount);
 
          ec_configdc();
          ec_dcsync0(0, TRUE, 4000*1000, 10000);
 
          ec_config_map(&IOmap);
 
-         printf("Slaves mapped, state to SAFE_OP.\n");
+         ROS_INFO("Slaves mapped, state to SAFE_OP.\n");
          /* wait for all slaves to reach SAFE_OP state */
          ec_statecheck(0, EC_STATE_SAFE_OP,  EC_TIMEOUTSTATE * 4);
 
@@ -175,11 +174,11 @@ void DrSoem::initEthercat()
          if ((iloop == 0) && (ec_slave[0].Ibits > 0)) iloop = 1;
          if (iloop > 8) iloop = 8;
 
-         printf("segments : %d : %d %d %d %d\n",ec_group[0].nsegments ,ec_group[0].IOsegment[0],ec_group[0].IOsegment[1],ec_group[0].IOsegment[2],ec_group[0].IOsegment[3]);
+         ROS_INFO("segments : %d : %d %d %d %d\n",ec_group[0].nsegments ,ec_group[0].IOsegment[0],ec_group[0].IOsegment[1],ec_group[0].IOsegment[2],ec_group[0].IOsegment[3]);
 
-         printf("Request operational state for all slaves\n");
+         ROS_INFO("Request operational state for all slaves\n");
          expectedWKC = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
-         printf("Calculated workcounter %d\n", expectedWKC);
+         ROS_INFO("Calculated workcounter %d\n", expectedWKC);
          ec_slave[0].state = EC_STATE_OPERATIONAL;
          /* send one valid process data to make outputs in slaves happy*/
          ec_send_processdata();
@@ -205,6 +204,7 @@ void DrSoem::transferData()
 {
     ec_send_processdata();
     wkc = ec_receive_processdata(EC_TIMEOUTRET);
+    bool has_op_0 = false;
     if(wkc >=expectedWKC)
     {
          derobotee::MotorStatusList msgs;
@@ -226,29 +226,48 @@ void DrSoem::transferData()
              msg.opMode = m_inputs->opMode;
              msg.slave = i;
              msgs.list.push_back(msg);
+             has_op_0 |= m_inputs->opMode == 0;
          } 
-         
+         if(!has_op_0)
+         {
+           motors_initialized_ = true;
+         }
+         if(has_op_0 && motors_initialized_)
+         {
+           ROS_INFO("Motos are in incorrect state, will unlock all motors");
+           for(unsigned int s = 1; s <= ec_slavecount; s++)
+           {
+             releaseMotor(s);
+           }
+         } 
          motorsState.publish(msgs);
          
-/*         printf("Processdata cycle %4d, WKC %d , O:", i, wkc);
+/*         ROS_INFO("Processdata cycle %4d, WKC %d , O:", i, wkc);
 
          for(j = 0 ; j < oloop; j++)
          {
-             printf(" %2.2x", *(ec_slave[0].outputs + j));
+             ROS_INFO(" %2.2x", *(ec_slave[0].outputs + j));
          }
 
-         printf(" I:");
+         ROS_INFO(" I:");
          for(j = 0 ; j < iloop; j++)
          {
-              printf(" %2.2x", *(ec_slave[0].inputs + j));
+              ROS_INFO(" %2.2x", *(ec_slave[0].inputs + j));
          }
-         printf(" T:%"PRId64"\r",ec_DCtime);
+         ROS_INFO(" T:%"PRId64"\r",ec_DCtime);
                   //  needlf = TRUE;
 */
      }
   
      osal_usleep(4000);
 
+   
+}
+//only release motor in speed mode, position mode not test yet
+void DrSoem::releaseMotor(unsigned int s)
+{
+   uint16 ctrlUnlock = 0x06;
+   ec_SDOwrite(s, 0x6040, 0, FALSE, sizeof(uint16),&ctrlUnlock, EC_TIMEOUTRXM);
    
 }
 
@@ -402,18 +421,18 @@ void DrSoem::configSpeedPDO(int s)
 void DrSoem::ecatcheck(const ros::TimerEvent&)
 
 {
-        ROS_INFO("timer callback for ethercat check");
         int slave;
         if( inOP && ((wkc < expectedWKC) || ec_group[currentgroup].docheckstate))
         {   
             if (needlf)
             {   
                needlf = FALSE;
-               printf("\n");
+               ROS_INFO("\n");
             }   
             /* one ore more slaves are not responding */
             ec_group[currentgroup].docheckstate = FALSE;
             ec_readstate();
+            bool has_lost = false;
             for (slave = 1; slave <= ec_slavecount; slave++)
             {   
                if ((ec_slave[slave].group == currentgroup) && (ec_slave[slave].state != EC_STATE_OPERATIONAL))
@@ -421,13 +440,13 @@ void DrSoem::ecatcheck(const ros::TimerEvent&)
                   ec_group[currentgroup].docheckstate = TRUE;
                   if (ec_slave[slave].state == (EC_STATE_SAFE_OP + EC_STATE_ERROR))
                   {   
-                     printf("ERROR : slave %d is in SAFE_OP + ERROR, attempting ack.\n", slave);
+                     ROS_INFO("ERROR : slave %d is in SAFE_OP + ERROR, attempting ack.\n", slave);
                      ec_slave[slave].state = (EC_STATE_SAFE_OP + EC_STATE_ACK);
                      ec_writestate(slave);
                   }   
                   else if(ec_slave[slave].state == EC_STATE_SAFE_OP)
                   {   
-                     printf("WARNING : slave %d is in SAFE_OP, change to OPERATIONAL.\n", slave);
+                     ROS_INFO("WARNING : slave %d is in SAFE_OP, change to OPERATIONAL.\n", slave);
                      ec_slave[slave].state = EC_STATE_OPERATIONAL;
                      ec_writestate(slave);
                   }   
@@ -436,7 +455,7 @@ void DrSoem::ecatcheck(const ros::TimerEvent&)
                      if (ec_reconfig_slave(slave, EC_TIMEOUTMON))
                      {   
                         ec_slave[slave].islost = FALSE;
-                        printf("MESSAGE : slave %d reconfigured\n",slave);
+                        ROS_INFO("MESSAGE : slave %d reconfigured\n",slave);
                      }   
                   }   
                   else if(!ec_slave[slave].islost)
@@ -446,7 +465,7 @@ void DrSoem::ecatcheck(const ros::TimerEvent&)
                      if (ec_slave[slave].state == EC_STATE_NONE)
                      {   
                         ec_slave[slave].islost = TRUE;
-                        printf("ERROR : slave %d lost\n",slave);
+                        ROS_INFO("ERROR : slave %d lost\n",slave);
                      }   
                   }   
                }   
@@ -457,18 +476,27 @@ void DrSoem::ecatcheck(const ros::TimerEvent&)
                      if (ec_recover_slave(slave, EC_TIMEOUTMON))
                      {
                         ec_slave[slave].islost = FALSE;
-                        printf("MESSAGE : slave %d recovered\n",slave);
+                        ROS_INFO("MESSAGE : slave %d recovered\n",slave);
                      }
                   }
                   else
                   {
                      ec_slave[slave].islost = FALSE;
-                     printf("MESSAGE : slave %d found\n",slave);
+                     ROS_INFO("MESSAGE : slave %d found\n",slave);
                   }
                }
+               has_lost |= ec_slave[slave].islost;
             }
             if(!ec_group[currentgroup].docheckstate)
-               printf("OK : all slaves resumed OPERATIONAL.\n");
+               ROS_INFO("OK : all slaves resumed OPERATIONAL.\n");
+            if(has_lost)
+            {
+              ROS_INFO("Found slave offline, unlock all motors");
+              for(unsigned int s; s <= ec_slavecount; s++ )
+              {
+                releaseMotor(s);
+              }
+	    }
         }
 
 }
@@ -478,7 +506,10 @@ int main(int argc, char **argv)
 
 	ros::init(argc, argv,"soem_motor_driver");
 	DrSoem obj;
+        ros::NodeHandle n("~");
+        ros::Timer timer = n.createTimer(ros::Duration(0.1), &DrSoem::ecatcheck, &obj);
 
+      
 	obj.spin();
 
 

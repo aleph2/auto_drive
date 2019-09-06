@@ -1,7 +1,7 @@
 <launch>
   <group ns="derobotee">
     <rosparam param="base_width">0.4609375</rosparam>  
-    <rosparam param="rate">30</rosparam>
+    <rosparam param="rate">10</rosparam>
     <rosparam param="ticks_meter">25464.79089</rosparam>
     <rosparam param="timeout_ticks">4</rosparam>
     <rosparam param="wheel_radius">0.0625</rosparam>
