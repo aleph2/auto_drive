@@ -1,7 +1,7 @@
 <launch>
   <include file="$(find derobotee)/launch/includes/soem.launch.xml" />
   <!--include file="$(find iiiroboticslidar)/launch/3iroboticslidar.launch" /-->
-  <include file="$(find sick_scan)/launch/sick_lms_1xx.launch" />
+  <!--include file="$(find sick_scan)/launch/sick_lms_1xx.launch" /-->
   <include file="$(find derobotee)/launch/includes/gmapping.launch.xml"/>
   <include file="$(find derobotee)/launch/includes/move_base.launch.xml"/>
   <include file="$(find twist_mux)/launch/twist_mux.launch" />

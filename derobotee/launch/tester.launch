@@ -9,6 +9,8 @@
     <rosparam param="total_motor">2</rosparam>
     <rosparam param="min_position">-1</rosparam>
     <rosparam param="max_position">220000</rosparam>
+    <rosparam param="max_offline_times">10</rosparam>
+    <rosparam param="max_wrong_state_times">10</rosparam>
   </group>
   <group ns="motor">
     <param name="rate" type="double" value="30" />
