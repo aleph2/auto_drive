@@ -77,7 +77,7 @@ private:
         void transferData();
         void configSpeedPDO(int idx);
         void configPositionPDO(int idx);
-        void releaseMotor(unsigned int s);
+        void resetMotor(unsigned int s);
 //variable for ec data process
         int i, j, oloop, iloop, chk;
         void configSpeedMode(unsigned int slave);
@@ -93,6 +93,10 @@ private:
         int min_position;
         int grinder_idx;
         bool motors_initialized_;
+        int max_offline_times_;
+        int offline_times_;
+        int max_wrong_state_times_;
+        int wrong_state_times_;
 };
 
 }

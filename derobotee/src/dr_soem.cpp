@@ -4,7 +4,7 @@ subscribe msg as motorNumber:cmdType:value
 publish msg as motorNumber:position:status:timestamp
 */
 using namespace derobotee;
-DrSoem::DrSoem():directions(10, 0), modes(10,""), min_position(-1),max_position(200000),motors_initialized_(false)
+DrSoem::DrSoem():directions(10, 0), modes(10,""), min_position(-1),max_position(200000),motors_initialized_(false), wrong_state_times_(0), offline_times_(0)
 {
 	init_variables();
 	get_parameters();
@@ -68,6 +68,8 @@ void DrSoem::get_parameters()
 	 
 		ROS_INFO_STREAM("max position value is " << max_position);
 	}
+        n.param<int>("/motor/max_offline_times", max_offline_times_, 10);
+        n.param<int>("/motor/max_wrong_state_times", max_wrong_state_times_, 10);
         int d;
         for(int i = 1; i <= total_motor; i++) {
            std::ostringstream key_stream;
@@ -232,12 +234,13 @@ void DrSoem::transferData()
          {
            motors_initialized_ = true;
          }
-         if(has_op_0 && motors_initialized_)
+         wrong_state_times_ = has_op_0 & motors_initialized_ ? wrong_state_times_ + 1: 0;
+         if(wrong_state_times_ > max_wrong_state_times_)
          {
            ROS_INFO("Motos are in incorrect state, will unlock all motors");
            for(unsigned int s = 1; s <= ec_slavecount; s++)
            {
-             releaseMotor(s);
+             resetMotor(s);
            }
          } 
          motorsState.publish(msgs);
@@ -263,12 +266,12 @@ void DrSoem::transferData()
 
    
 }
-//only release motor in speed mode, position mode not test yet
-void DrSoem::releaseMotor(unsigned int s)
+//only reset motor in speed mode, position mode not test yet
+void DrSoem::resetMotor(unsigned int s)
 {
-   uint16 ctrlUnlock = 0x06;
-   ec_SDOwrite(s, 0x6040, 0, FALSE, sizeof(uint16),&ctrlUnlock, EC_TIMEOUTRXM);
-   
+   motors_initialized_ = false; 
+   initSpeedMode(s);
+   initSpeedTPDO(s); 
 }
 
 void DrSoem::initPositionMode(unsigned int s)
@@ -489,12 +492,13 @@ void DrSoem::ecatcheck(const ros::TimerEvent&)
             }
             if(!ec_group[currentgroup].docheckstate)
                ROS_INFO("OK : all slaves resumed OPERATIONAL.\n");
-            if(has_lost)
+            offline_times_ = has_lost?offline_times_ + 1:0;
+            if(offline_times_ > max_offline_times_)
             {
               ROS_INFO("Found slave offline, unlock all motors");
               for(unsigned int s; s <= ec_slavecount; s++ )
               {
-                releaseMotor(s);
+                resetMotor(s);
               }
 	    }
         }
@@ -508,7 +512,6 @@ int main(int argc, char **argv)
 	DrSoem obj;
         ros::NodeHandle n("~");
         ros::Timer timer = n.createTimer(ros::Duration(0.1), &DrSoem::ecatcheck, &obj);
-
       
 	obj.spin();
 
