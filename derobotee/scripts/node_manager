@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+import rospy
+import roslaunch
+import thread
+from std_msgs.msg import String
+from sensor_msgs.msg import Joy
+import subprocess
+class NodeManager():
+    STATE_STARTED = 1
+    STATE_STOPPED = 0
+    CMD_START = 1
+    CMD_STOP = 0
+    def __init__(self):
+       self.mapping_state = NodeManager.STATE_STOPPED
+       rospy.init_node('node_manager', anonymous=True)
+       self.mapping_cmd = NodeManager.CMD_STOP
+       self.start_bag = False
+    def getLauncher(self):
+       uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+       roslaunch.configure_logging(uuid)
+       mapping_launcher  = roslaunch.parent.ROSLaunchParent(uuid, ["/home/dysun/catkin_ws/src/derobotee/launch/tester.launch"])
+       return mapping_launcher
+    def callback(self, data):
+        if data.buttons[2] == 1 and data.buttons[7] == 1:
+            print "start cmd hit"
+            self.mapping_cmd = NodeManager.CMD_START
+        if data.buttons[1] == 1 and data.buttons[7] == 1:
+            print "stop cmd hit"
+            self.mapping_cmd = NodeManager.CMD_STOP
+        if data.buttons[2] == 1 and data.buttons[8] == 1 and self.start_bag == False:
+            print "start rosbag"
+            self.start_bag = True
+            subprocess.Popen(['rosbag', 'record', '--lz4', '-a', '-o','/var/log/robot/log', '-x', '/joy(.*)|/diagnostics'])
+        if data.buttons[1] == 1 and data.buttons[8] == 1:
+            print "stop rosbag"
+            self.start_bag = False
+            subprocess.Popen(['killall', 'rosbag'])
+    def listener(self ):
+
+    # In ROS, nodes are uniquely named. If two nodes with the same
+    # name are launched, the previous one is kicked off. The
+    # anonymous=True flag means that rospy will choose a unique
+    # name for our 'listener' node so that multiple listeners can
+    # run simultaneously.
+
+        rospy.Subscriber("/joy", Joy, self.callback)
+
+    # spin() simply keeps python from exiting until this node is stopped
+#        rospy.spin()
+
+if __name__ == '__main__':
+    nm = NodeManager()
+    nm.listener()
+    launcher = None
+    while not rospy.is_shutdown():
+        rospy.sleep(1)
+        if(nm.mapping_state == NodeManager.STATE_STARTED and nm.mapping_cmd == NodeManager.CMD_STOP):
+           nm.mapping_state = NodeManager.STATE_STOPPED
+           launcher.shutdown()
+           launcher = None
+        if(nm.mapping_state == NodeManager.STATE_STOPPED and nm.mapping_cmd == NodeManager.CMD_START):
+           nm.mapping_state = NodeManager.STATE_STARTED
+           launcher = nm.getLauncher()
+           launcher.start()
