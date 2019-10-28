@@ -15,3 +15,9 @@ line_increase_button: 15
 line_decrease_button: 16
 
 delta_value: 0.05
+line_speed_ceil: 2.0
+ang_speed_ceil: 4.0
+
+shutdown_button: 8
+start_button: 9
+wait_times: 100

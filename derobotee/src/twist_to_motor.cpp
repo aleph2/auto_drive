@@ -7,7 +7,7 @@
 #include <math.h>
 
 #include "derobotee/MotorCmdList.h"
-#define v2rpm(v) (wheel_gear_ratio* v*30/(M_PI*wheel_radius))
+#define v2rpm(v, wheel_radius) (wheel_gear_ratio* v*30/(M_PI*wheel_radius))
 class TwistToMotors
 {
 
@@ -34,12 +34,13 @@ private:
 
 	double w;
 	double rate;
-	double wheel_radius;
+	double left_wheel_radius;
+	double right_wheel_radius;
 	double wheel_gear_ratio;
 
 	float dx,dy,dr;
 
-
+        double z_compensate;
 	void init_variables();
 	void get_parameters();
 
@@ -106,11 +107,10 @@ void TwistToMotors::get_parameters()
 		ROS_INFO_STREAM("Base_width from param" << w);	       
 	}
 
-        if(n.getParam("wheel_radius", wheel_radius)){
-	 
-		ROS_INFO_STREAM("wheel radius from param" << wheel_radius);	       
-	}
-
+        n.param<double>("z_compensate", z_compensate, 0.01);
+        n.param<double>("left_wheel_radius", left_wheel_radius, 15.0);
+        n.param<double>("right_wheel_radius", right_wheel_radius, 15.0);
+        ROS_INFO_STREAM("wheel raidus left righ is " << left_wheel_radius << " " << right_wheel_radius);
         if(n.getParam("wheel_gear_ratio", wheel_gear_ratio)){
 	 
 		ROS_INFO_STREAM("wheel radius from param" << wheel_gear_ratio);	       
@@ -183,9 +183,9 @@ void TwistToMotors::spinOnce()
         derobotee::MotorCmd cmdL;
         derobotee::MotorCmd cmdR;
         cmdL.slave = left_idx;
-        cmdL.value = v2rpm(left);
+        cmdL.value = v2rpm(left, left_wheel_radius);
         cmdR.slave = right_idx;
-        cmdR.value = v2rpm(right);
+        cmdR.value = v2rpm(right, right_wheel_radius);
         cmds.list.push_back(cmdL);
         cmds.list.push_back(cmdR);
    
@@ -207,7 +207,7 @@ void TwistToMotors::twistCallback(const geometry_msgs::Twist &msg)
 	
 	dx = msg.linear.x;
 	dy = msg.linear.y;
-	dr = msg.angular.z ;
+	dr = msg.angular.z;
 
 }
 

@@ -65,6 +65,8 @@ struct TeleopTwistJoy::Impl
   int ang_decrease_button;
 
   float delta_value;
+  float ang_speed_ceil;
+  float line_speed_ceil;
 };
 
 /**
@@ -88,6 +90,8 @@ TeleopTwistJoy::TeleopTwistJoy(ros::NodeHandle* nh, ros::NodeHandle* nh_param)
   nh_param->param<int>("line_increase_button", pimpl_->line_increase_button, 15);
   nh_param->param<int>("line_decrease_button", pimpl_->line_decrease_button, 16);
   nh_param->getParam("delta_value", pimpl_->delta_value);
+  nh_param->getParam("ang_speed_ceil", pimpl_->ang_speed_ceil);
+  nh_param->getParam("line_speed_ceil", pimpl_->line_speed_ceil);
 
   if (nh_param->getParam("axis_linear", pimpl_->axis_linear_map))
   {
@@ -181,7 +185,11 @@ void TeleopTwistJoy::Impl::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg
            joy_msg->buttons[enable_button]&&
            joy_msg->buttons[ang_increase_button])
   {
-   scale_angular_map["normal"]["yaw"] += delta_value ;
+    if(scale_angular_map["normal"]["yaw"] + delta_value > ang_speed_ceil)
+    {
+      return;
+    }
+    scale_angular_map["normal"]["yaw"] += delta_value ;
   }
   else if (joy_msg->buttons.size() > enable_button &&
            joy_msg->buttons[enable_button]&&
@@ -200,7 +208,11 @@ void TeleopTwistJoy::Impl::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg
            joy_msg->buttons[enable_button]&&
            joy_msg->buttons[line_increase_button])
   {
-   scale_linear_map["normal"]["x"] += delta_value ;
+    if(scale_linear_map["normal"]["x"] + delta_value > line_speed_ceil)
+    {
+      return;
+    }
+    scale_linear_map["normal"]["x"] += delta_value ;
   }
   else if (joy_msg->buttons.size() > enable_button &&
            joy_msg->buttons[enable_button]&&

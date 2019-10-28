@@ -1,15 +1,17 @@
 <launch>
   <group ns="derobotee">
-    <rosparam param="base_width">0.526</rosparam>  
-    <rosparam param="rate">30</rosparam>
-    <rosparam param="ticks_meter">424413.1816</rosparam>
+    <rosparam param="base_width">0.527</rosparam>  
+    <rosparam param="rate">20</rosparam>
     <rosparam param="timeout_ticks">4</rosparam>
-    <rosparam param="wheel_radius">0.075</rosparam>
-    <rosparam param="wheel_gear_ratio">10</rosparam>
+    <rosparam param="left_wheel_radius">0.075</rosparam>
+    <rosparam param="right_wheel_radius">0.075</rosparam>
+    <rosparam param="puls_pur_cycle">10000</rosparam>
+    <rosparam param="wheel_gear_ratio">20</rosparam>
     <rosparam param="total_motor">2</rosparam>
     <rosparam param="min_position">-1</rosparam>
     <rosparam param="max_position">220000</rosparam>
     <rosparam param="max_offline_times">10</rosparam>
+    <rosparam param="z_compensate">0.0</rosparam>
     <rosparam param="max_wrong_state_times">10</rosparam>
   </group>
   <group ns="motor">

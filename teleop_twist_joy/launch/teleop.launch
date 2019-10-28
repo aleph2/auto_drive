@@ -9,6 +9,9 @@
     <param name="autorepeat_rate" value="20" />
   </node>
 
+  <node pkg="derobotee" name="node_manager" type="node_manager">
+  </node>
+
   <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node">
     <rosparam command="load" file="$(arg config_filepath)" />
     <remap from="cmd_vel" to="joy_vel" />

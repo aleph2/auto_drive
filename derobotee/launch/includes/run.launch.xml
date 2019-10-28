@@ -1,11 +1,11 @@
 <launch>
   <include file="$(find derobotee)/launch/includes/soem.launch.xml" />
   <!--include file="$(find iiiroboticslidar)/launch/3iroboticslidar.launch" /-->
-  <!--include file="$(find sick_scan)/launch/sick_lms_1xx.launch" /-->
+  <include file="$(find sick_scan)/launch/sick_lms_1xx.launch" />
   <include file="$(find derobotee)/launch/includes/gmapping.launch.xml"/>
   <include file="$(find derobotee)/launch/includes/move_base.launch.xml"/>
   <include file="$(find twist_mux)/launch/twist_mux.launch" />
-  <include file="$(find teleop_twist_joy)/launch/teleop.launch" />
+  <!--include file="$(find teleop_twist_joy)/launch/teleop.launch" /-->
   <group ns="derobotee">
     <node pkg="derobotee" type="twist_to_motor" name="twist_to_motor" output="screen"/>
     <node pkg="derobotee" type="diff_tf" name="diff_tf" output="screen"/>
