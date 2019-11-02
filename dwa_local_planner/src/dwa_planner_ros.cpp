@@ -265,8 +265,8 @@ namespace dwa_local_planner {
       return false;
     }
     std::vector<geometry_msgs::PoseStamped> transformed_plan;
-    //TODO if ( ! planner_util_.getSparrowLocalPlan(current_pose_, transformed_plan)) {
-    if ( ! planner_util_.getLocalPlan(current_pose_, transformed_plan)) {
+    if ( ! planner_util_.getSparrowLocalPlan(current_pose_, transformed_plan)) {
+    //if ( ! planner_util_.getLocalPlan(current_pose_, transformed_plan)) {
       ROS_ERROR("Could not get local plan");
       return false;
     }
