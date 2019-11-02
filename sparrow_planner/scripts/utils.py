@@ -1,10 +1,14 @@
 #!/usr/bin/python
 import math
+import csv
 from math import pi
 import numpy as np
 from scipy.spatial import ConvexHull
 from shapely.geometry import LineString
 from shapely.geometry import Point
+import yaml
+from svg.path import parse_path
+
 def rotate(origin, point, sinv):
     """
     Rotate a point counterclockwise by a given angle around a given origin.
@@ -344,3 +348,26 @@ def grinding_path2(init_point, boundary_points):
         path.append(end_point)
         i = i+1
     return np.array(path), np.array(path_idx)
+def way_points_path(init_point):
+    xmldoc = minidom.parse('test.svg')
+    path_strings = [path.getAttribute('d') for path in xmldom.getElementsByTagName('path')]
+    ps = parse_path(path_strings[0])
+    
+    f = file('test3.yaml')
+    d = yaml.load(f)
+    origin = d['origin']
+    resolution = d['resolution']
+    pairs = None
+    with open('path.csv', 'rb') as f:
+        reader = csv.reader(f)
+        pairs = list(reader)
+    cl = np.float_(pairs)
+    l = map(lambda x : transform(x, 0.05, -12.2, -15.4), cl)
+    l.insert(0, init_point)
+    i = np.arange(0, len(l), 10)
+    return l, i
+def points_of_path(path, resolution,origin_x, origin_y, granularity):
+    path_len = path.length()* resolution
+     
+def transform(p, resolution, x, y):
+    return np.array([p[0] * resolution + x, p[1] * resolution + y])
