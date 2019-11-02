@@ -5,6 +5,8 @@ import thread
 from std_msgs.msg import String
 from sensor_msgs.msg import Joy
 import subprocess
+from datetime import datetime
+import os
 class NodeManager():
     STATE_STARTED = 1
     STATE_STOPPED = 0
@@ -15,6 +17,8 @@ class NodeManager():
        rospy.init_node('node_manager', anonymous=True)
        self.mapping_cmd = NodeManager.CMD_STOP
        self.start_bag = False
+       self.saving_map = False
+       self.last_time = datetime.now()
     def getLauncher(self):
        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
        roslaunch.configure_logging(uuid)
@@ -35,6 +39,21 @@ class NodeManager():
             print "stop rosbag"
             self.start_bag = False
             subprocess.Popen(['killall', 'rosbag'])
+        if data.buttons[2] == 1 and data.buttons[6] == 1 and self.saving_map == False:
+            n = datetime.now()
+            d = n - self.last_time
+            self.last_time = n
+            print 'saving map hit duration is ' + str(d.seconds)
+            if d.seconds <= 6:
+                return
+            self.saving_map = True
+            print "save map"
+            n = datetime.now()
+            map_file = '/home/dysun/catkin_ws/src/derobotee/maps/willo_' + n.strftime('%Y-%m-%d_%H-%M-%S')
+            cmd = 'rosrun map_server map_saver -f ' + map_file
+            os.system(cmd)
+            self.saving_map = False
+
     def listener(self ):
 
     # In ROS, nodes are uniquely named. If two nodes with the same

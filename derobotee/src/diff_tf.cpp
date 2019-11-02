@@ -6,6 +6,7 @@
 #include <math.h>
 #include <inttypes.h>
 #include "derobotee/MotorStatusList.h"
+#define ticks_meter(wheel_radius) (wheel_gear_ratio* puls_per_cycle/(M_PI*2*wheel_radius))
 
 class Odometry_calc{
 
@@ -66,6 +67,11 @@ private:
 	double dr;
 
 	double x_final,y_final, theta_final;
+
+        double left_wheel_radius, right_wheel_radius;
+        int    puls_per_cycle;
+        double left_ticks_meter, right_ticks_meter;
+        int    wheel_gear_ratio;
 
 	ros::Time current_time, last_time;
 
@@ -187,13 +193,6 @@ void Odometry_calc::get_node_params(){
 
 
 
-
-        if(n.getParam("/derobotee/ticks_meter", ticks_meter)){
-	 
-		ROS_INFO_STREAM("Ticks meter" << ticks_meter);	       
-	}
-
-
         if(n.getParam("/derobotee/base_width", base_width )){
 	 
 		ROS_INFO_STREAM("Base Width" << base_width );	       
@@ -222,6 +221,16 @@ void Odometry_calc::get_node_params(){
 
                 ROS_INFO_STREAM("Right direction from param" << r_direction);
         }
+        n.param<double>("left_wheel_radius", left_wheel_radius, 15.0);
+        n.param<double>("right_wheel_radius", right_wheel_radius, 15.0);
+        n.param<int>("puls_per_cycle", puls_per_cycle, 10000);
+        n.param<int>("wheel_gear_ratio", wheel_gear_ratio, 20);
+        ROS_INFO_STREAM("wheel raidus left righ is " << left_wheel_radius << " " << right_wheel_radius);
+        ROS_INFO_STREAM("Puls per cycle is " << puls_per_cycle);
+        left_ticks_meter = ticks_meter(left_wheel_radius);
+        right_ticks_meter = ticks_meter(right_wheel_radius);
+        ROS_INFO_STREAM("left ticks meter" << left_ticks_meter);
+        ROS_INFO_STREAM("right ticks meter" << right_ticks_meter);
 
 /*
 	ROS_INFO_STREAM("Encoder min" << encoder_min);
@@ -276,8 +285,8 @@ void Odometry_calc::update(){
 			d_right = 0;
 		}
 		else{
-			d_left = (left - enc_left) / ( ticks_meter);
-			d_right = (right - enc_right) / ( ticks_meter);
+			d_left = (left - enc_left) / ( left_ticks_meter);
+			d_right = (right - enc_right) / ( right_ticks_meter);
 		}
 		enc_left = left;
 		enc_right = right;
@@ -339,7 +348,8 @@ void Odometry_calc::update(){
 		    //set the position
 		    odom.pose.pose.position.x = x_final;
 		    odom.pose.pose.position.y = y_final;
-		    odom.pose.pose.position.z = 0.0;
+//		    odom.pose.pose.position.z = 0.0;
+		    odom.pose.pose.position.z = theta_final*360/M_PI;
 		    odom.pose.pose.orientation = odom_quat;
 
 		    //set the velocity

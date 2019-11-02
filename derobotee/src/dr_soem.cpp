@@ -134,7 +134,7 @@ void DrSoem::processCmds(const derobotee::MotorCmdList::ConstPtr& msg)
             m_outputs = ((out_frame*)ec_slave[s_idx].outputs);
             m_outputs->targetVelocity = (int)msg->list[i].value * 2730 * directions[s_idx];
             m_outputs->ctrlWd = 0x0F;
-            m_outputs->opMode = 3;
+            m_outputs->opMode = -3;
             if(s_idx == grinder_idx){
                m_outputs->opMode = -3;
             }
@@ -416,7 +416,7 @@ void DrSoem::configSpeedPDO(int s)
     ec_SDOwrite(s, 0x1a00, 0x0, FALSE, sizeof(uint8), &vcount, EC_TIMEOUTRXM);
     ec_SDOwrite(s, 0x1c13, 0, FALSE, sizeof(uint8), &enable, EC_TIMEOUTRXM);
     //setup mode by sdo write
-    uint8 ctlMode = 3;
+    uint8 ctlMode = -3;
     ec_SDOwrite(s, 0x6060, 0, FALSE, sizeof(uint8), &ctlMode, EC_TIMEOUTRXM);
 
 
