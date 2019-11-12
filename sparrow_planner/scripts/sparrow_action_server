@@ -6,6 +6,7 @@ import tf
 import actionlib
 from sparrow_planner.msg import sparrowAction
 from geometry_msgs.msg import Polygon
+from geometry_msgs.msg import Point
 from geometry_msgs.msg import PointStamped
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseStamped
@@ -14,17 +15,60 @@ import path_utils
 import utils
 from sparrow_planner.msg import grinding_path
 from sparrow_planner.srv import GetPathIdx
+from visualization_msgs.msg import *
+from move_base_msgs.msg import MoveBaseActionGoal
+from actionlib_msgs.msg import GoalStatusArray
+import yaml
+
 class SparrowActionServer(object):
+    
     def __init__(self):
         self.server = actionlib.SimpleActionServer('sparrow_action', sparrowAction, self.execute, False)
         self.server.start()
         self.path_pub = rospy.Publisher('/move_base/SparrowPlanner/grinding_path', grinding_path, queue_size=10, latch=True)
+        self.v_path_pub = rospy.Publisher('/sparrow/rviz/v_path', Marker, queue_size=10, latch=True)
+        self.nav_action_pub = rospy.Publisher('/move_base/goal', MoveBaseActionGoal, queue_size=10, latch=True)
         self.parser = path_utils.PathParser()
 	rospy.Subscriber('/boundary', Polygon,self.boundaryCb)
 	rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped ,self.poseCb)
 	rospy.Subscriber('/clicked_point', PointStamped,self.make_way_point_path)
 	rospy.Subscriber('/map_metadata', MapMetaData, self.mapMetaCb)
+	rospy.Subscriber('/start_navigation', PoseStamped, self.rvizNavCb)
+	rospy.Subscriber('/move_base/status', GoalStatusArray, self.statusCb)
+        self.state_file = '/home/dysun/map/state.yaml'
+        f = open(self.state_file, 'r')
+        self.state = yaml.load(f)     
+        f.close()
         self.path_idx_server()
+    def rvizNavCb(self, pose):
+        self.startNav()
+    def persisteState(self):
+        f = open(self.state_file, 'w')
+        yaml.dump(self.state, f)
+        f.close()
+    def statusCb(self, status_msg):
+        if len(status_msg.status_list) == 0:
+            return
+        status = status_msg.status_list[-1]
+        path_id = int(status.goal_id.id)
+
+        #Goal not reach
+        if status.status != 3:
+            return
+        #Goal reached, so to start new path        
+        if path_id == self.state['current_path']:
+            path_id = (path_id + 1)%len(self.parser.paths)
+            self.state['current_path'] = path_id
+            self.persisteState()
+            self.makePath()
+            self.startNav() 
+    def startNav(self):
+        act = MoveBaseActionGoal()
+        act.header.stamp = rospy.Time.now()
+        act.goal.target_pose = self.current_path[-1]
+        act.goal_id.id = str(self.state['current_path'])
+        self.nav_action_pub.publish(act) 
+        
     def mapMetaCb(self, mapMeta):
         self.resolution = mapMeta.resolution
         self.width = mapMeta.width
@@ -33,14 +77,32 @@ class SparrowActionServer(object):
         self.o_y = mapMeta.origin.position.y
     def poseCb(self, amcl_pose):
         self.pose = amcl_pose
+    def makePath(self):
+        row_path = self.parser.paths[self.state['current_path']]
+        self.current_path = map(lambda p:self.makePose(p), row_path)
+        msg = grinding_path()
+        msg.spirial = self.current_path
+        self.path_pub.publish(msg)
+    def showAllPath(self):
+        path_marker = Marker()
+        path_marker.header.frame_id = "map"
+        path_marker.type = Marker.LINE_STRIP
+        path_marker.pose.orientation.w = 1.0
+        path_marker.action = Marker.ADD
+        path_marker.color.a = 0.5
+        path_marker.color.r = 1.0
+        path_marker.scale.x = 0.01
+        path_marker.scale.y = 0.01
+        map(lambda path:path_marker.points.extend(self.path2Points(path)), self.parser.paths)
+        self.v_path_pub.publish(path_marker)
+    
+    def path2Points(self, path):
+        return [Point(p[0], p[1], 0) for p in path] 
     def make_way_point_path(self, point):
         init_point = np.array([self.pose.pose.pose.position.x,self.pose.pose.pose.position.y])
-        self.parser.getPath(init_point, '/home/dysun/map/test.svg', np.array([self.o_x, self.o_y]),self.width, self.height, self.resolution, 0.3)
-        path = map(lambda p:self.makePose(p), self.parser.path)
-        msg = grinding_path()
-        msg.spirial = path
-        self.path_pub.publish(msg)
-
+        self.parser.loadPath(init_point, '/home/dysun/map/test.svg', np.array([self.o_x, self.o_y]),self.width, self.height, self.resolution, 0.3)
+        self.makePath()
+        self.showAllPath()
     def makePose(self, point):
         pose = PoseStamped()
         pose.header.stamp = rospy.Time.now()
