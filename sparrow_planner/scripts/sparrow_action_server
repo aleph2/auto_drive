@@ -17,7 +17,7 @@ from sparrow_planner.msg import grinding_path
 from sparrow_planner.srv import GetPathIdx
 from visualization_msgs.msg import *
 from move_base_msgs.msg import MoveBaseActionGoal
-from actionlib_msgs.msg import GoalStatusArray
+from move_base_msgs.msg import MoveBaseActionResult
 import yaml
 
 class SparrowActionServer(object):
@@ -34,33 +34,40 @@ class SparrowActionServer(object):
 	rospy.Subscriber('/clicked_point', PointStamped,self.make_way_point_path)
 	rospy.Subscriber('/map_metadata', MapMetaData, self.mapMetaCb)
 	rospy.Subscriber('/start_navigation', PoseStamped, self.rvizNavCb)
-	rospy.Subscriber('/move_base/status', GoalStatusArray, self.statusCb)
+	rospy.Subscriber('/move_base/result', MoveBaseActionResult, self.statusCb)
         self.state_file = '/home/dysun/map/state.yaml'
         f = open(self.state_file, 'r')
         self.state = yaml.load(f)     
         f.close()
         self.path_idx_server()
+        self.last_time = rospy.Time.now()
     def rvizNavCb(self, pose):
         self.startNav()
     def persisteState(self):
         f = open(self.state_file, 'w')
         yaml.dump(self.state, f)
         f.close()
-    def statusCb(self, status_msg):
-        if len(status_msg.status_list) == 0:
-            return
-        status = status_msg.status_list[-1]
+    def statusCb(self, result_msg):
+        status = result_msg.status
         path_id = int(status.goal_id.id)
 
         #Goal not reach
         if status.status != 3:
             return
         #Goal reached, so to start new path        
-        if path_id == self.state['current_path']:
+        print result_msg
+        now = rospy.Time.now()
+        duration = now - self.last_time
+        if path_id == self.state['current_path'] and duration.secs > 3:
+            self.last_time = now
+            print 'last path id ', path_id
             path_id = (path_id + 1)%len(self.parser.paths)
+            print 'current path id ', path_id
             self.state['current_path'] = path_id
             self.persisteState()
+            self.parser.paths[path_id][0] = np.array([self.pose.pose.pose.position.x,self.pose.pose.pose.position.y]) 
             self.makePath()
+            self.showAllPath()
             self.startNav() 
     def startNav(self):
         act = MoveBaseActionGoal()
