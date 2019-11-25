@@ -1,0 +1,6 @@
+direction: {'1': -1, '2': 1}
+ifname: enp0s25
+left_wheel: 2
+mode: {'1': speed, '2': speed}
+rate: 30.0
+right_wheel: 1

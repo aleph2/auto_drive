@@ -35,7 +35,6 @@ void SimpleLayer::reconfigureCB(costmap_2d::TrajectoryConstraintsPlugInConfig &c
 void SimpleLayer::updateBounds(double robot_x, double robot_y, double robot_yaw, double* min_x,
                                            double* min_y, double* max_x, double* max_y)
 {
-  ROS_INFO_STREAM("The bound is :" << *min_x << "," << *min_y << "," << *max_x << "," << *max_y);
   if (!enabled_)
     return;
   mark_x_ = robot_x + cos(robot_yaw) ;
@@ -52,7 +51,6 @@ void SimpleLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int
 {
   if (!enabled_)
     return;
-  ROS_INFO_STREAM("Update cost:" << min_i << "," << min_j << "," << max_i << "," << max_j);
   if (constr_points_.empty())
     return;
 
@@ -60,7 +58,6 @@ void SimpleLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int
   try
   {
     tf_->lookupTransform(global_frame_, frame_id_, ros::Time(0), transform);
-    ROS_INFO_STREAM("Transform from : " << frame_id_ << " to " << global_frame_);
   }
   catch (tf::TransformException ex)
   {
@@ -83,7 +80,6 @@ void SimpleLayer::updateCellCost(costmap_2d::Costmap2D& master_grid, tf::Point p
   p = transform(p);
   
   if(master_grid.worldToMap(p.x(), p.y(), mx, my)){
-    ROS_INFO_STREAM("Set cost for x:" << mx << " y:" << my); 
     master_grid.setCost(mx, my, LETHAL_OBSTACLE);
   }
 }
