@@ -1,0 +1,11 @@
+bump: {clearing: false, data_type: PointCloud2, marking: true, max_obstacle_height: 0.15,
+  min_obstacle_height: 0.0, topic: mobile_base/sensors/bumper_pointcloud}
+combination_method: 1
+enabled: true
+footprint_clearing_enabled: true
+max_obstacle_height: 0.6
+observation_sources: scan bump
+obstacle_range: 2.5
+raytrace_range: 3.0
+scan: {clearing: true, data_type: LaserScan, marking: true, max_obstacle_height: 3,
+  min_obstacle_height: 0.0, topic: scan}

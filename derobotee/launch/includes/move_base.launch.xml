@@ -6,13 +6,17 @@
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <rosparam file="$(find derobotee)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find derobotee)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find diff_wheeled_robot_gazebo)/param/obstacle.yaml" command="load" ns="local_costmap/obstacle_layer" />
+    <rosparam file="$(find diff_wheeled_robot_gazebo)/param/inflation.yaml" command="load" ns="local_costmap/inflation_layer" />
     <rosparam file="$(find derobotee)/param/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find derobotee)/param/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find derobotee)/param/base_local_planner_params.yaml" command="load" />
     <rosparam file="$(find derobotee)/param/dwa_local_planner_params.yaml" command="load" />
     <rosparam file="$(find derobotee)/param/move_base_params.yaml" command="load" />
-
+    <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
     <remap from="cmd_vel" to="/nav_vel"/>
     <remap from="odom" to="$(arg odom_topic)"/>
+    <remap from="goal" to="sparrow_goal"/>
+
   </node>
 </launch>
