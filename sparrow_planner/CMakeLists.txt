@@ -30,6 +30,7 @@ add_action_files(DIRECTORY action FILES sparrow.action)
 add_message_files(
     FILES
     grinding_path.msg
+    points.msg
 )
 generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs nav_msgs)
 catkin_package(

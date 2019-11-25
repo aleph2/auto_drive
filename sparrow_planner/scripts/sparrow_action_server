@@ -14,6 +14,7 @@ from nav_msgs.msg      import MapMetaData
 import path_utils
 import utils
 from sparrow_planner.msg import grinding_path
+from sparrow_planner.msg import points
 from sparrow_planner.srv import GetPathIdx
 from visualization_msgs.msg import *
 from move_base_msgs.msg import MoveBaseActionGoal
@@ -26,6 +27,7 @@ class SparrowActionServer(object):
         self.server = actionlib.SimpleActionServer('sparrow_action', sparrowAction, self.execute, False)
         self.server.start()
         self.path_pub = rospy.Publisher('/move_base/SparrowPlanner/grinding_path', grinding_path, queue_size=10, latch=True)
+        self.constr_pub = rospy.Publisher('/move_base/SparrowPlanner/constrs_points', points, queue_size=10, latch=True)
         self.v_path_pub = rospy.Publisher('/sparrow/rviz/v_path', Marker, queue_size=10, latch=True)
         self.nav_action_pub = rospy.Publisher('/move_base/goal', MoveBaseActionGoal, queue_size=10, latch=True)
         self.parser = path_utils.PathParser()
@@ -76,6 +78,9 @@ class SparrowActionServer(object):
         act.goal_id.id = str(self.state['current_path'])
         self.nav_action_pub.publish(act) 
         
+    def makeConstr(self):
+        ps = [Point(p[0], p[1], 0) for p in self.parser.constrs]
+        self.constr_pub.publish(ps)
     def mapMetaCb(self, mapMeta):
         self.resolution = mapMeta.resolution
         self.width = mapMeta.width
@@ -107,9 +112,10 @@ class SparrowActionServer(object):
         return [Point(p[0], p[1], 0) for p in path] 
     def make_way_point_path(self, point):
         init_point = np.array([self.pose.pose.pose.position.x,self.pose.pose.pose.position.y])
-        self.parser.loadPath(init_point, '/home/dysun/map/test.svg', np.array([self.o_x, self.o_y]),self.width, self.height, self.resolution, 0.3)
+        self.parser.loadPath(init_point, '/home/dysun/map/test.svg', np.array([self.o_x, self.o_y]),self.width, self.height, self.resolution, 0.5)
         self.makePath()
         self.showAllPath()
+        self.makeConstr()
     def makePose(self, point):
         pose = PoseStamped()
         pose.header.stamp = rospy.Time.now()
