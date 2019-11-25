@@ -4,10 +4,18 @@
   <!--include file="$(find derobotee)/launch/includes/gmapping.launch.xml"/-->
   <include file="$(find derobotee)/launch/includes/move_base.launch.xml"/>
   <include file="$(find twist_mux)/launch/twist_mux.launch" />
+  <param name="robot_description" command="$(find xacro)/xacro.py $(find derobotee)/urdf/diff_wheeled_robot.xacro" />
   <group ns="derobotee">
     <node pkg="derobotee" type="twist_to_motor" name="twist_to_motor" output="screen"/>
     <node pkg="derobotee" type="diff_tf" name="diff_tf" output="screen"/>
     <node pkg="derobotee" type="power_state" name="power_state" output="screen"/>
 
   </group>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" >
+    <param name="publish_frequency" type="double" value="5.0" />
+  </node>
+  <param name="use_gui" value="false"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node pkg="tf" type="static_transform_publisher" name="lidar_broadcaster" args="0.52638 0 0 0 0 0 1 base_link laser 50" />
+
 </launch>

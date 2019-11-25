@@ -1,14 +1,7 @@
 <launch>
   <rosparam file="$(find derobotee)/param/robot.yaml" command="load" ns="derobotee" />
   <rosparam file="$(find derobotee)/param/motor.yaml" command="load" ns="motor" />
-  <param name="robot_description" command="$(find xacro)/xacro.py $(find derobotee)/urdf/diff_wheeled_robot.xacro" />
     <!-- Starting Joint state publisher node which will publish the joint values -->
   <include file="$(find derobotee)/launch/includes/run.launch.xml"/>
   <include file="$(find derobotee)/launch/includes/gmapping.launch.xml"/>
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" >
-    <param name="publish_frequency" type="double" value="5.0" />
-  </node>
-  <param name="use_gui" value="false"/>
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-  <node pkg="tf" type="static_transform_publisher" name="lidar_broadcaster" args="0.52638 0 0 0 0 0 1 base_link laser 50" />
 </launch>
