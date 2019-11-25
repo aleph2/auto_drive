@@ -49,7 +49,7 @@ class NodeManager():
             self.saving_map = True
             print "save map"
             n = datetime.now()
-            map_file = '/home/dysun/catkin_ws/src/derobotee/maps/willo_' + n.strftime('%Y-%m-%d_%H-%M-%S')
+            map_file = '/home/dysun/map/willo_' + n.strftime('%Y-%m-%d_%H-%M-%S')
             cmd = 'rosrun map_server map_saver -f ' + map_file
             os.system(cmd)
             self.saving_map = False

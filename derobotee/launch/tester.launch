@@ -1,40 +1,14 @@
 <launch>
-  <group ns="derobotee">
-    <rosparam param="base_width">0.527</rosparam>  
-    <rosparam param="rate">20</rosparam>
-    <rosparam param="timeout_ticks">4</rosparam>
-    <rosparam param="left_wheel_radius">0.075</rosparam>
-    <rosparam param="right_wheel_radius">0.075</rosparam>
-    <rosparam param="puls_pur_cycle">10000</rosparam>
-    <rosparam param="wheel_gear_ratio">20</rosparam>
-    <rosparam param="total_motor">2</rosparam>
-    <rosparam param="min_position">-1</rosparam>
-    <rosparam param="max_position">220000</rosparam>
-    <rosparam param="max_offline_times">10</rosparam>
-    <rosparam param="z_compensate">0.0</rosparam>
-    <rosparam param="max_wrong_state_times">10</rosparam>
-  </group>
-  <group ns="motor">
-    <param name="rate" type="double" value="30" />
-    <param name="ifname" type="str" value="enp0s25"/>
-    <rosparam param="left_wheel">2</rosparam>
-    <rosparam param="right_wheel">1</rosparam>
-    <group ns="direction">
-      <rosparam param="1">-1</rosparam>
-      <rosparam param="2">1</rosparam>
-    </group> 
-    <group ns="mode">
-      <rosparam param="1">speed</rosparam>
-      <rosparam param="2">speed</rosparam>
-    </group>
-  </group>
-    <param name="robot_description" command="$(find xacro)/xacro.py $(find derobotee)/urdf/diff_wheeled_robot.xacro" />
+  <rosparam file="$(find derobotee)/param/robot.yaml" command="load" ns="derobotee" />
+  <rosparam file="$(find derobotee)/param/motor.yaml" command="load" ns="motor" />
+  <param name="robot_description" command="$(find xacro)/xacro.py $(find derobotee)/urdf/diff_wheeled_robot.xacro" />
     <!-- Starting Joint state publisher node which will publish the joint values -->
   <include file="$(find derobotee)/launch/includes/run.launch.xml"/>
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" >
-      <param name="publish_frequency" type="double" value="5.0" />
-    </node>
-    <param name="use_gui" value="false"/>
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <include file="$(find derobotee)/launch/includes/gmapping.launch.xml"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" >
+    <param name="publish_frequency" type="double" value="5.0" />
+  </node>
+  <param name="use_gui" value="false"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
   <node pkg="tf" type="static_transform_publisher" name="lidar_broadcaster" args="0.52638 0 0 0 0 0 1 base_link laser 50" />
 </launch>
