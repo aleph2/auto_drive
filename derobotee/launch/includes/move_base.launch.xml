@@ -10,7 +10,7 @@
     <rosparam file="$(find derobotee)/param/inflation.yaml" command="load" ns="local_costmap/inflation_layer" />
     <rosparam file="$(find derobotee)/param/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find derobotee)/param/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find derobotee)/param/base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find derobotee)/param/teb.yaml" ns="TebLocalPlannerROS" command="load" />
     <rosparam file="$(find derobotee)/param/dwa_local_planner_params.yaml" command="load" />
     <rosparam file="$(find derobotee)/param/move_base_params.yaml" command="load" />
     <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />

@@ -22,7 +22,7 @@ from move_base_msgs.msg import MoveBaseActionResult
 import yaml
 
 class SparrowActionServer(object):
-    
+
     def __init__(self):
         self.server = actionlib.SimpleActionServer('sparrow_action', sparrowAction, self.execute, False)
         self.server.start()
@@ -39,7 +39,7 @@ class SparrowActionServer(object):
 	rospy.Subscriber('/move_base/result', MoveBaseActionResult, self.statusCb)
         self.state_file = '/home/dysun/map/state.yaml'
         f = open(self.state_file, 'r')
-        self.state = yaml.load(f)     
+        self.state = yaml.load(f)
         f.close()
         self.path_idx_server()
         self.last_time = rospy.Time.now()
@@ -50,6 +50,7 @@ class SparrowActionServer(object):
         yaml.dump(self.state, f)
         f.close()
     def statusCb(self, result_msg):
+        print result_msg
         status = result_msg.status
         path_id = int(status.goal_id.id)
 
@@ -67,17 +68,17 @@ class SparrowActionServer(object):
             print 'current path id ', path_id
             self.state['current_path'] = path_id
             self.persisteState()
-            self.parser.paths[path_id][0] = np.array([self.pose.pose.pose.position.x,self.pose.pose.pose.position.y]) 
+            self.parser.paths[path_id][0] = np.array([self.pose.pose.pose.position.x,self.pose.pose.pose.position.y])
             self.makePath()
             self.showAllPath()
-            self.startNav() 
+            self.startNav()
     def startNav(self):
         act = MoveBaseActionGoal()
         act.header.stamp = rospy.Time.now()
         act.goal.target_pose = self.current_path[-1]
         act.goal_id.id = str(self.state['current_path'])
-        self.nav_action_pub.publish(act) 
-        
+        self.nav_action_pub.publish(act)
+        print 'the goal id is', act.goal_id.id
     def makeConstr(self):
         ps = [Point(p[0], p[1], 0) for p in self.parser.constrs]
         self.constr_pub.publish(ps)
@@ -103,8 +104,8 @@ class SparrowActionServer(object):
         path_marker.action = Marker.ADD
         path_marker.color.a = 0.5
         path_marker.color.r = 1.0
-        path_marker.scale.x = 0.01
-        path_marker.scale.y = 0.01
+        path_marker.scale.x = 0.1
+        path_marker.scale.y = 0.1
         map(lambda path:path_marker.points.extend(self.path2Points(path)), self.parser.paths)
         self.v_path_pub.publish(path_marker)
     
