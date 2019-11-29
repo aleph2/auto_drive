@@ -4,4 +4,5 @@
     <!-- Starting Joint state publisher node which will publish the joint values -->
   <include file="$(find derobotee)/launch/includes/run.launch.xml"/>
   <include file="$(find derobotee)/launch/includes/gmapping.launch.xml"/>
+
 </launch>
