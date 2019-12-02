@@ -113,7 +113,7 @@ class SparrowActionServer(object):
         return [Point(p[0], p[1], 0) for p in path] 
     def make_way_point_path(self, point):
         init_point = np.array([self.pose.pose.pose.position.x,self.pose.pose.pose.position.y])
-        self.parser.loadPath(init_point, '/home/dysun/map/test.svg', np.array([self.o_x, self.o_y]),self.width, self.height, self.resolution, 0.5)
+        self.parser.loadPath(init_point, '/home/dysun/map/test.svg', np.array([self.o_x, self.o_y]),self.width, self.height, self.resolution, 0.4)
         self.makePath()
         self.showAllPath()
         self.makeConstr()

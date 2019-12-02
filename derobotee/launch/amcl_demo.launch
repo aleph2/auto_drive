@@ -19,9 +19,9 @@
 
   <node pkg="sparrow_planner" type="sparrow_action_server" name="sparrow_action_server"  output="screen"/>
   <remap from="/move_base_simple/goal" to="/start_navigation"/>
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find derobotee)/rviz/navigation.rviz" >
+  <!--node pkg="rviz" type="rviz" name="rviz" args="-d $(find derobotee)/rviz/navigation.rviz" >
    <remap from="move_base_simple/goal" to="/start_navigation"/>
-  </node>
+  </node-->
 
 </launch>
 
