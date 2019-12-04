@@ -5,22 +5,30 @@ import numpy as np
 from xml.dom import minidom
 import svg
 from svg.path import parse_path
+import os
+import yaml
 class PathParser:
 
     def __init__(self):
         self.path_idx = []
         self.path = []
         self.constrs = []
-    def loadPath(self, init_point, svg_file, origin,width, height, resolution, segment):
+    def loadPath(self, init_point, meta_file, segment):
+        file_dir = os.path.dirname(meta_file)
+        
+        f = open(meta_file, 'r')
+        meta = yaml.load(f)
+        f.close()
+       # paths_string = [path.getAttribute('d') for path in path_nodes ]
+        svg_file = file_dir + os.path.sep + meta['path']
         xmldoc = minidom.parse(svg_file)
         path_nodes = xmldoc.getElementsByTagName('path') 
-       # paths_string = [path.getAttribute('d') for path in path_nodes ]
         paths_string = [path.getAttribute('d') for path in path_nodes if path.parentNode.tagName == 'svg']
         constr_string = [path.getAttribute('d') for path in path_nodes if path.parentNode.tagName == 'g']
         path_strings = [path.getAttribute('d') for path in xmldoc.getElementsByTagName('path')]
-        self.resolution = resolution 
-        self.origin = origin
-        self.height = height
+        self.resolution = meta['resolution']
+        self.origin = np.array(meta['origin'][0:2])
+        self.height = meta['height']
         self.segment = segment
         self.paths = [self.svg2path(row_path) for row_path in paths_string]
         self.paths[0].insert(0, init_point)

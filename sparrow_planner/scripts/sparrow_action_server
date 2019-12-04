@@ -32,7 +32,6 @@ class SparrowActionServer(object):
         self.nav_action_pub = rospy.Publisher('/move_base/goal', MoveBaseActionGoal, queue_size=10, latch=True)
         self.parser = path_utils.PathParser()
 	rospy.Subscriber('/boundary', Polygon,self.boundaryCb)
-	rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped ,self.poseCb)
 	rospy.Subscriber('/clicked_point', PointStamped,self.make_way_point_path)
 	rospy.Subscriber('/map_metadata', MapMetaData, self.mapMetaCb)
 	rospy.Subscriber('/start_navigation', PoseStamped, self.rvizNavCb)
@@ -43,6 +42,7 @@ class SparrowActionServer(object):
         f.close()
         self.path_idx_server()
         self.last_time = rospy.Time.now()
+        self.tf_listener_ = tf.TransformListener()
     def rvizNavCb(self, pose):
         self.startNav()
     def persisteState(self):
@@ -68,10 +68,15 @@ class SparrowActionServer(object):
             print 'current path id ', path_id
             self.state['current_path'] = path_id
             self.persisteState()
-            self.parser.paths[path_id][0] = np.array([self.pose.pose.pose.position.x,self.pose.pose.pose.position.y])
+            current_pose = self.getPose()
+            self.parser.paths[path_id][0] = np.array([current_pose.pose.position.x, current_pose.pose.position.y])
             self.makePath()
             self.showAllPath()
             self.startNav()
+    def getPose(self):
+        robot_pose = PoseStamped()
+        robot_pose.header.frame_id = 'base_link'
+        return self.tf_listener_.transformPose('map', robot_pose)
     def startNav(self):
         act = MoveBaseActionGoal()
         act.header.stamp = rospy.Time.now()
@@ -88,8 +93,6 @@ class SparrowActionServer(object):
         self.height = mapMeta.height
         self.o_x = mapMeta.origin.position.x
         self.o_y = mapMeta.origin.position.y
-    def poseCb(self, amcl_pose):
-        self.pose = amcl_pose
     def makePath(self):
         row_path = self.parser.paths[self.state['current_path']]
         self.current_path = map(lambda p:self.makePose(p), row_path)
@@ -112,8 +115,9 @@ class SparrowActionServer(object):
     def path2Points(self, path):
         return [Point(p[0], p[1], 0) for p in path] 
     def make_way_point_path(self, point):
-        init_point = np.array([self.pose.pose.pose.position.x,self.pose.pose.pose.position.y])
-        self.parser.loadPath(init_point, '/home/dysun/map/test.svg', np.array([self.o_x, self.o_y]),self.width, self.height, self.resolution, 0.4)
+        current_pose = self.getPose()
+        init_point = np.array([current_pose.pose.position.x, current_pose.pose.position.y])
+        self.parser.loadPath(init_point, '/home/dysun/map/test.yaml', 0.4)
         self.makePath()
         self.showAllPath()
         self.makeConstr()
