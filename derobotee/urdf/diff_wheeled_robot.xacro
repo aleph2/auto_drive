@@ -33,8 +33,8 @@
 
   <!-- Main body radius and height -->
   <!-- Main Body Cylinder base   -->
-  <property name="base_height" value="0.05" /> 
-  <property name="base_radius" value="0.267" /> 
+  <property name="base_height" value="0.15" /> 
+  <property name="base_radius" value="0.3" /> 
   <property name="base_mass" value="5" /> <!-- in kg-->
 
 
