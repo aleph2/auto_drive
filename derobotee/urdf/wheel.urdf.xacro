@@ -3,11 +3,11 @@
   
   <!-- Wheels -->
   <property name="wheel_radius" value="0.065" /> 
-  <property name="wheel_height" value="0.035" />
+  <property name="wheel_height" value="0.042" />
   <property name="wheel_mass" value="2.5" /> <!-- in kg-->
   
   <property name="base_x_origin_to_wheel_origin" value="0" />
-  <property name="base_y_origin_to_wheel_origin" value="0.132" />
+  <property name="base_y_origin_to_wheel_origin" value="0.264" />
   <property name="base_z_origin_to_wheel_origin" value="0.0" />
   
   <macro name="cylinder_inertia" params="m r h">
@@ -52,7 +52,7 @@
       <parent link="${parent}"/>
       <child link="${fb}_${lr}_wheel"/>
       <origin xyz="${translateX * base_x_origin_to_wheel_origin} ${translateY * base_y_origin_to_wheel_origin} ${base_z_origin_to_wheel_origin}" rpy="0 0 0" /> 
-      <axis xyz="0 1 0" rpy="0  0" />
+      <axis xyz="0 1 0" rpy="0 0 0" />
       <limit effort="100" velocity="100"/>
       <joint_properties damping="0.0" friction="0.0"/>
     </joint>

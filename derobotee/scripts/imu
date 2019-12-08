@@ -20,6 +20,8 @@ class Imu_sensor():
 
         self.imu_pub_ = rospy.Publisher('/imu', Imu, queue_size=10, latch=True)
         self.ser_ = serial.Serial(port='/dev/IMU', baudrate=115200, stopbits=serial.STOPBITS_ONE, parity=serial.PARITY_NONE)
+        reset_v = '\x4c\x53\x53\x52\x00\x7e\x4f'
+        self.ser_.write(reset_v)
     def spin(self):
         r = rospy.Rate(200)
         while not rospy.is_shutdown():
@@ -36,7 +38,7 @@ class Imu_sensor():
            return
         imu = Imu()
         imu.header.stamp = rospy.Time.now()
-        imu.header.frame_id = 'imu'
+        imu.header.frame_id = 'imu_link'
         imu.linear_acceleration.x = unpack('<h', h[0:2])[0]*LINEAR_FACTOR
         imu.linear_acceleration.y = unpack('<h', h[2:4])[0]*LINEAR_FACTOR
         imu.linear_acceleration.z = unpack('<h', h[4:6])[0]*LINEAR_FACTOR

@@ -112,7 +112,7 @@
 
 
           <!--cylinder length="${base_height}" radius="${base_radius}" /-->
-          <box size="0.5 0.42 0.05" />
+          <box size="0.8 0.62 0.05" />
 
       </geometry>
       <material name="White" />
@@ -171,7 +171,7 @@
  <joint name="caster_front_joint" type="fixed">
       <parent link="base_link"/>
       <child link="caster_front_link"/>
-      <origin xyz="0.238 0.0 0" rpy="${-M_PI/2} 0 0"/>
+      <origin xyz="0.538 0.0 0" rpy="${-M_PI/2} 0 0"/>
     </joint>
 
 
@@ -190,7 +190,21 @@
   <!-- SENSORS -->
   
   <!-- hokuyo -->
+  <link name="imu_link">
+   <visual>
+     <origin xyz="0 0 0"/>
+     <geometry>
+       <box size="0.06 0.04 0.02" />
+     </geometry>
+     <material name="orange" />
+   </visual>
+  </link>
 
+  <joint name="imu_link_joint" type="fixed">
+i   <parent link="base_link" />
+    <child link="imu_link" />
+    <origin xyz="0 0 0.3" rpy="0.1  0.1  0"/>
+  </joint>
   <link name="hokuyo_link">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -201,7 +215,7 @@
     </visual>
   </link>
   <joint name="hokuyo_joint" type="fixed">
-    <origin xyz="0.43805 0 ${base_height+hokuyo_size/4}" rpy="0 0 ${-M_PI}" />
+    <origin xyz="0.52638 0 0.20" rpy="0 0.01 0" />
     <parent link="base_link"/>
     <child link="hokuyo_link" />
   </joint>
