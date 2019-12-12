@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(derobotee)
+project(imu)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,15 +8,9 @@ project(derobotee)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  move_base_msgs
-  nav_msgs
-  tf
-  roscpp
   rospy
-  #soem
-  std_msgs
-  message_generation
+  sensor_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -38,10 +32,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
 ## * In the file package.xml:
 ##   * add a build_depend tag for "message_generation"
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
+##   * add a build_depend and a exec_depend tag for each package in MSG_DEP_SET
 ##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
 ##     but can be declared for certainty nonetheless:
-##     * add a run_depend tag for "message_runtime"
+##     * add a exec_depend tag for "message_runtime"
 ## * In this file (CMakeLists.txt):
 ##   * add "message_generation" and every package in MSG_DEP_SET to
 ##     find_package(catkin REQUIRED COMPONENTS ...)
@@ -53,14 +47,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  MotorCmd.msg
-  MotorCmdList.msg
-  MotorStatus.msg
-  MotorStatusList.msg
-  Elevation.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -77,10 +68,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-   DEPENDENCIES
-   std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   sensor_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -89,7 +80,7 @@ generate_messages(
 ## To declare and build dynamic reconfigure parameters within this
 ## package, follow these steps:
 ## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
+##   * add a build_depend and a exec_depend tag for "dynamic_reconfigure"
 ## * In this file (CMakeLists.txt):
 ##   * add "dynamic_reconfigure" to
 ##     find_package(catkin REQUIRED COMPONENTS ...)
@@ -112,11 +103,10 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES dr_motor_driver
-#  CATKIN_DEPENDS roscpp rospy soem std_msgs
+#  INCLUDE_DIRS include
+#  LIBRARIES imu
+#  CATKIN_DEPENDS rospy sensor_msgs
 #  DEPENDS system_lib
-   CATKIN_DEPENDS message_runtime
 )
 
 ###########
@@ -126,17 +116,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-   include
+# include
   ${catkin_INCLUDE_DIRS}
-)
-link_directories(
-  /opt/ros/kinetic/lib/
-  ${catkin_LIBRARY_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/dr_motor_driver.cpp
+#   src/${PROJECT_NAME}/imu.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -147,7 +133,7 @@ link_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/dr_motor_driver_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/imu_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -178,11 +164,18 @@ link_directories(
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
-## Mark executables and/or libraries for installation
-# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
+## Mark executables for installation
+## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
+# install(TARGETS ${PROJECT_NAME}_node
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+## Mark libraries for installation
+## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
+# install(TARGETS ${PROJECT_NAME}
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 # )
 
 ## Mark cpp header files for installation
@@ -204,28 +197,19 @@ link_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_dr_motor_driver.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_imu.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-add_executable(dr_soem src/dr_soem.cpp)
-#add_executable(elevation_sensor src/elevation_sensor.cpp)
-add_executable(twist_to_motor src/twist_to_motor.cpp)
-add_executable(diff_tf src/diff_tf.cpp)
-target_link_libraries(dr_soem ${catkin_LIBRARIES} /usr/local/lib/libsoem.a pthread)
-#target_link_libraries(elevation_sensor ${catkin_LIBRARIES} /usr/local/lib/libcontrolcan.so)
- target_link_libraries(twist_to_motor
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(diff_tf
-   ${catkin_LIBRARIES}
- )
+install(DIRECTORY param/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/param
+  PATTERN ".svn" EXCLUDE)
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  PATTERN ".svn" EXCLUDE)
+catkin_install_python(PROGRAMS scripts/imu_driver
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-add_dependencies(twist_to_motor derobotee_generate_messages_cpp)
-add_dependencies(diff_tf derobotee_generate_messages_cpp)
-add_dependencies(dr_soem derobotee_generate_messages_cpp)
-#add_dependencies(elevation_sensor derobotee_generate_messages_cpp)
-#add_definitions(-DEC_BIG_ENDIAN)

@@ -16,7 +16,7 @@
     <node pkg="derobotee" type="power_state" name="power_state" output="screen"/>
 
   </group>
-  <!--node name='imu_node' pkg='derobotee' type='imu' /-->
+  <node name='imu_node' pkg='derobotee' type='imu' />
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" >
     <param name="publish_frequency" type="double" value="1.0" />
   </node>

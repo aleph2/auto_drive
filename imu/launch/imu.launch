@@ -1,0 +1,5 @@
+<launch>
+  <rosparam file="$(find imu)/param/setting.yaml" command="load"/>
+  <node pkg="imu" type="imu_driver" name="imu_driver" />
+
+</launch>

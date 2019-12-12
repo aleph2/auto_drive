@@ -185,6 +185,7 @@ void TeleopTwistJoy::Impl::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg
            joy_msg->buttons[enable_button]&&
            joy_msg->buttons[ang_increase_button])
   {
+  ROS_INFO_STREAM("Joy Callback ---------------------Enable Angular" << enable_button);
     if(scale_angular_map["normal"]["yaw"] + delta_value > ang_speed_ceil)
     {
       return;
@@ -208,6 +209,7 @@ void TeleopTwistJoy::Impl::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg
            joy_msg->buttons[enable_button]&&
            joy_msg->buttons[line_increase_button])
   {
+  ROS_INFO_STREAM("Joy Callback ---------------------Enable Linear" << enable_button);
     if(scale_linear_map["normal"]["x"] + delta_value > line_speed_ceil)
     {
       return;

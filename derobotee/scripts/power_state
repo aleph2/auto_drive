@@ -7,7 +7,7 @@ from std_msgs.msg import Int32
 class PowerState():
     def __init__(self):
         self.power_state_pub = rospy.Publisher('/derobotee/power_state', Int32, queue_size=10, latch=True)
-        self.instrumentA = minimalmodbus.Instrument('/dev/USBBattry', 1, minimalmodbus.MODE_RTU)
+        self.instrumentA = minimalmodbus.Instrument('/dev/USBBattery', 1, minimalmodbus.MODE_RTU)
         self.instrumentA.serial.baudrate = 9600
         self.instrumentA.serial.timeout = 1
 
