@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(imu)
 
+SET(CMAKE_CXX_STANDARD 14)
+MESSAGE(${CMAKE_SYSTEM_PROCESSOR})
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -10,6 +12,7 @@ project(imu)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
+  roscpp
   tf
 )
 
@@ -103,10 +106,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES imu
-#  CATKIN_DEPENDS rospy sensor_msgs
-#  DEPENDS system_lib
+   INCLUDE_DIRS include
+   LIBRARIES imu
+   CATKIN_DEPENDS rospy sensor_msgs
+   DEPENDS system_lib
 )
 
 ###########
@@ -116,8 +119,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+)
+
+link_directories(
+  lib
+  ${catkin_LIBRARY_DIRS}
 )
 
 ## Declare a C++ library
@@ -201,9 +209,14 @@ include_directories(
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
+add_executable(imu_node src/imu.cpp)
+target_link_libraries(imu_node ${catkin_LIBRARIES} libserial_${CMAKE_SYSTEM_PROCESSOR}.a pthread)
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+install(TARGETS ${PROJECT_NAME}_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 install(DIRECTORY param/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/param
   PATTERN ".svn" EXCLUDE)
