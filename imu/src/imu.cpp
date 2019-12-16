@@ -54,6 +54,7 @@ void ImuDriver::spin()
   while (ros::ok())
   {
     update();
+    ros::spinOnce();
     loop_rate.sleep();
   }
 }
@@ -62,44 +63,42 @@ ImuDriver::ImuDriver()
 }
 void ImuDriver::update()
 {
+  std::string dataString;
+  imu_data* p;
+  my_serial_->readline(dataString, 1024, "\x7f\x80");
+  if(dataString.size() < 23)
+  {
+     return;
+  }
+  p = (imu_data*)dataString.c_str();
+  tf2::Quaternion q;
+  q.setRPY(p->roll*pose_fact_, p->pitch*pose_fact_, p->yaw*pose_fact_);
+  sensor_msgs::Imu msg;
+  msg.header.frame_id = "imu_link";
+  msg.linear_acceleration.x = (p->acc_x)*linear_fact_ ;
+  msg.linear_acceleration.y = (p->acc_y)*linear_fact_ ;
+  msg.linear_acceleration.z = (p->acc_z)*linear_fact_ ;
+  msg.angular_velocity.x = (p->theta_x)*theta_fact_ ;
+  msg.angular_velocity.y = (p->theta_y)*theta_fact_ ;
+  msg.angular_velocity.z = (p->theta_z)*theta_fact_ ;
+  msg.orientation.w = q.w();
+  msg.orientation.x = q.x();
+  msg.orientation.y = q.y();
+  msg.orientation.z = q.z();
+  imu_pub_.publish(msg); 
   
 }
 int ImuDriver::init()
 {
   std::string port("/dev/IMU");
   uint32_t  baud = 115200;
-  imu_pub_ = n.advertise<sensor_msgs::Imu>("/odom", 50);
+  imu_pub_ = n.advertise<sensor_msgs::Imu>("/imu_raw_data", 50);
   my_serial_ = new serial::Serial(port, baud, serial::Timeout::simpleTimeout(1000));
   if(my_serial_->isOpen())
-    std::cout << " Yes." << std::endl;
+    std::cout << " Yes. aaa" << std::endl;
   else
-    std::cout << " No." << std::endl;
+    std::cout << " No. bbb" << std::endl;
 
-  while(true)
-  {
-    std::string dataString;
-    imu_data* p;
-    my_serial_->readline(dataString, 1024, "\x7f\x80");
-    if(dataString.size() < 23)
-    {
-       continue;
-    }
-    p = (imu_data*)dataString.c_str();
-    tf2::Quaternion q;
-    q.setRPY(p->roll*pose_fact_, p->pitch*pose_fact_, p->yaw*pose_fact_);
-    sensor_msgs::Imu msg;
-    msg.linear_acceleration.x = (p->acc_x)*linear_fact_ ;
-    msg.linear_acceleration.y = (p->acc_y)*linear_fact_ ;
-    msg.linear_acceleration.z = (p->acc_z)*linear_fact_ ;
-    msg.angular_velocity.x = (p->theta_x)*theta_fact_ ;
-    msg.angular_velocity.y = (p->theta_y)*theta_fact_ ;
-    msg.angular_velocity.z = (p->theta_z)*theta_fact_ ;
-    msg.orientation.w = q.w();
-    msg.orientation.x = q.x();
-    msg.orientation.y = q.y();
-    msg.orientation.z = q.z();
-    imu_pub_.publish(msg); 
-  }
 }
 
 int main(int argc, char** argv)
@@ -111,6 +110,7 @@ int main(int argc, char** argv)
 }
   ImuDriver imu;
   imu.init();
+  imu.spin();
   return 0;
 }
 

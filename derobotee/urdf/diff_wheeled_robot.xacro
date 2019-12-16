@@ -56,7 +56,7 @@
 -->
 
   <!-- Hokuyo Laser scanner -->
-  <property name="hokuyo_size" value="0.15" />
+  <property name="sick_size" value="0.15" />
 
 
 
@@ -91,7 +91,7 @@
   </gazebo>
 
   <joint name="base_footprint_joint" type="fixed">
-    <origin xyz="0 0 ${wheel_radius - base_z_origin_to_wheel_origin}" rpy="0 0 0" />
+    <origin xyz="0 0 ${wheel_radius - base_z_origin_to_wheel_origin}" rpy="0 0.01 0" />
     <parent link="base_footprint"/>
     <child link="base_link" />
   </joint>
@@ -194,7 +194,7 @@
    <visual>
      <origin xyz="0 0 0"/>
      <geometry>
-       <box size="0.06 0.04 0.02" />
+       <box size="0.035 0.035 0.02" />
      </geometry>
      <material name="orange" />
    </visual>
@@ -203,27 +203,27 @@
   <joint name="imu_link_joint" type="fixed">
 i   <parent link="base_link" />
     <child link="imu_link" />
-    <origin xyz="0 0 0.3" rpy="0.1  0.1  0"/>
+    <origin xyz="0.404 0.2395 0.008" rpy="0  0  0"/>
   </joint>
-  <link name="hokuyo_link">
+  <link name="laser">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <box size="${hokuyo_size} ${hokuyo_size} ${hokuyo_size}"/>
+        <box size="${sick_size} ${sick_size} ${sick_size}"/>
       </geometry>
       <material name="Blue" />
     </visual>
   </link>
-  <joint name="hokuyo_joint" type="fixed">
-    <origin xyz="0.52638 0 0.20" rpy="0 0.01 0" />
+  <joint name="sick_joint" type="fixed">
+    <origin xyz="0.52638 0 0.20" rpy="0 0 0" />
     <parent link="base_link"/>
-    <child link="hokuyo_link" />
+    <child link="laser" />
   </joint>
-  <gazebo reference="hokuyo_link">
+  <gazebo reference="laser">
     <material>Gazebo/Blue</material>
     <turnGravityOff>false</turnGravityOff>
     <sensor type="ray" name="head_hokuyo_sensor">
-      <pose>${hokuyo_size/2} 0 0 0 0 0</pose>
+      <pose>${sick_size/2} 0 0 0 0 0</pose>
       <visualize>false</visualize>
       <update_rate>40</update_rate>
       <ray>
@@ -243,7 +243,7 @@ i   <parent link="base_link" />
       </ray>
       <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
         <topicName>/scan</topicName>
-        <frameName>hokuyo_link</frameName>
+        <frameName>laser</frameName>
       </plugin>
     </sensor>
   </gazebo>

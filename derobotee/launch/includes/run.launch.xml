@@ -5,6 +5,7 @@
   <!--include file="$(find derobotee)/launch/includes/gmapping.launch.xml"/-->
   <!--include file="$(find derobotee)/launch/includes/move_base.launch.xml"/-->
   <include file="$(find twist_mux)/launch/twist_mux.launch" />
+  <include file="$(find imu)/launch/imu.launch" />
   <param name="robot_description" command="$(find xacro)/xacro.py $(find derobotee)/urdf/diff_wheeled_robot.xacro" />
   <!--param name="robot_description"
     textfile="$(find derobotee)/urdf/backpack_2d.urdf" /-->
@@ -16,7 +17,7 @@
     <node pkg="derobotee" type="power_state" name="power_state" output="screen"/>
 
   </group>
-  <node name='imu_node' pkg='derobotee' type='imu' />
+  
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" >
     <param name="publish_frequency" type="double" value="1.0" />
   </node>
