@@ -22,7 +22,7 @@ class NodeManager():
     def getLauncher(self):
        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
        roslaunch.configure_logging(uuid)
-       mapping_launcher  = roslaunch.parent.ROSLaunchParent(uuid, ["/home/dysun/catkin_ws/src/derobotee/launch/tester.launch"])
+       mapping_launcher  = roslaunch.parent.ROSLaunchParent(uuid, ["/home/dysun/catkin_ws/src/derobotee/launch/no_cart.launch"])
        return mapping_launcher
     def callback(self, data):
         if data.buttons[2] == 1 and data.buttons[7] == 1:

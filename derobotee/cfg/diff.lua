@@ -51,12 +51,12 @@ TRAJECTORY_BUILDER_2D.num_accumulated_range_data = 1
 POSE_GRAPH.constraint_builder.ceres_scan_matcher.ceres_solver_options.num_threads = 4
 
 TRAJECTORY_BUILDER_2D.min_range = 0.3
-TRAJECTORY_BUILDER_2D.missing_data_ray_length = 2.
-TRAJECTORY_BUILDER_2D.use_imu_data = false
+TRAJECTORY_BUILDER_2D.missing_data_ray_length = 16.
+TRAJECTORY_BUILDER_2D.use_imu_data = true
 TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 10
 TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 15
 
-POSE_GRAPH.optimize_every_n_nodes = 1 -- Decrease
+POSE_GRAPH.optimize_every_n_nodes = 100 -- Decrease
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.linear_search_window = 3 
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.branch_and_bound_depth = 1
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.angular_search_window = math.rad(100.)
